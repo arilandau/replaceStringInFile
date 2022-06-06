@@ -4,17 +4,23 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ReplaceStringInFile {
 
 	public static void main(String[] args) throws IOException {
 		
-		String delimiter = args[0];
+		
+//		String delimiter = args[0];
+		
 		String fileToReadPath = args[1];
 		String fileToWritePath = args[2];
 		
 		File fileToRead = new File(fileToReadPath);
-		Scanner scannerToRead = new Scanner(fileToRead).useDelimiter(delimiter);  
+		Scanner scannerToRead = new Scanner(fileToRead);  
+//		Scanner scannerToRead = new Scanner(fileToRead).useDelimiter(delimiter);  
+		
 		FileWriter fileToWrite = new FileWriter(fileToWritePath);
 		                
         loopLines(scannerToRead, fileToWrite);
@@ -32,13 +38,27 @@ public class ReplaceStringInFile {
 	private static void loopLines(Scanner scannerToRead, FileWriter fileToWrite) throws IOException {
 		
 		int countMatches = 0;
+	    boolean splitString = true;
+		Pattern pattern = Pattern.compile("NUMBER OF VISITORS: ");
 		
-		while (scannerToRead.hasNext()) {			
-			
-			String currentSection = scannerToRead.next();
-			
-			fileToWrite.append(currentSection);
-			fileToWrite.append("[Removed]");
+		while (scannerToRead.hasNext()) {						
+			String currentSection = scannerToRead.nextLine();
+
+			if (splitString) {								
+				Matcher matcher = pattern.matcher(currentSection);
+				boolean matchFound = matcher.find();
+
+				fileToWrite.append(currentSection);
+				System.out.println(currentSection);
+				
+				if (matchFound) {
+					splitString = false;
+				}			
+				
+			} else {
+				fileToWrite.append(currentSection);
+				fileToWrite.append("\n");
+			}
 			
 			countMatches++;		
 		}
